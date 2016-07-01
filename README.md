@@ -1,6 +1,208 @@
 # TIL
 Today I Learned, literally
 
+## 7-1
+
+iOS stuff
+
+* [How do I convert an NSString value to NSData?](http://stackoverflow.com/questions/901357/how-do-i-convert-an-nsstring-value-to-nsdata)
+* [Is it possible to force Excel recognize UTF-8 CSV files automatically?](http://stackoverflow.com/questions/6002256/is-it-possible-to-force-excel-recognize-utf-8-csv-files-automatically)
+* [為何使用 Microsoft Excel 打開匯出的報名人 CSV 檔案是亂碼？](http://support.kktix.com/knowledgebase/articles/278363-%E7%82%BA%E4%BD%95%E4%BD%BF%E7%94%A8-microsoft-excel-%E6%89%93%E9%96%8B%E5%8C%AF%E5%87%BA%E7%9A%84%E5%A0%B1%E5%90%8D%E4%BA%BA-csv-%E6%AA%94%E6%A1%88%E6%98%AF%E4%BA%82%E7%A2%BC)
+
+[Mousewheel horizontal scrolling](http://stackoverflow.com/questions/25228158/mousewheel-horizontal-scrolling)
+
+```
+$(function() {
+        $("html, body").mousewheel(function(event, delta) {
+            this.scrollLeft -= (delta * 30);
+            event.preventDefault();
+        });
+    });
+```
+
+
+## 6-27
+
+[How to get the date without Time from NSDate?](http://stackoverflow.com/questions/11117324/how-to-get-the-date-without-time-from-nsdate)
+
+```
+NSDateComponents *components = [[NSCalendar currentCalendar] 
+             components:NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit 
+              fromDate:[NSDate date]];
+NSDate *startDate = [[NSCalendar currentCalendar] 
+             dateFromComponents:components];
+```
+
+## 6-23
+
+[How to lose margin/padding in UITextView?](http://stackoverflow.com/questions/746670/how-to-lose-margin-padding-in-uitextview)
+
+```
+self.textView.textContainer.lineFragmentPadding = 0;
+self.textView.textContainerInset = UIEdgeInsetsZero;
+```
+
+## 6-08
+
+links
+
+* [Common Mistakes With Adding Custom Fonts to Your iOS App](http://codewithchris.com/common-mistakes-with-adding-custom-fonts-to-your-ios-app/)
+* [Custom Fonts in Swift](https://grokswift.com/custom-fonts/)
+* [How to integrate and use Font Awesome with Objective-C or Swift in an Xcode project?](http://stackoverflow.com/questions/10569878/how-to-integrate-and-use-font-awesome-with-objective-c-or-swift-in-an-xcode-proj)
+* [Custom UIView from Xib file in Xcode 5 for Reusable Components - Part 1](https://www.youtube.com/watch?v=xP7YvdlnHfA)
+* [Create an IBDesignable UIView subclass with code from an XIB file in Xcode 6](http://supereasyapps.com/blog/2014/12/15/create-an-ibdesignable-uiview-subclass-with-code-from-an-xib-file-in-xcode-6)
+
+## 5-26
+
+links
+
+* [Identify if the navigation is a pop or a push in a child view controller](http://stackoverflow.com/questions/31959245/identify-if-the-navigation-is-a-pop-or-a-push-in-a-child-view-controller)
+
+```
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    
+    if(self.isMovingFromParentViewController == YES && self.isDirty)
+    {
+        // do stuff...
+    }
+}
+```
+
+* 
+
+## 5-25
+
+###how to save image to photo library in iOS
+
+__use `UIImageWriteToSavedPhotosAlbum` function__
+
+```
+- (void)saveImageToPhotoAlbum:(UIImage *)image
+{
+    id contextInfo = @"can be anything";
+    
+    UIImageWriteToSavedPhotosAlbum(image,
+                                   self,
+                                   @selector(image:didFinishSavingWithError:contextInfo:),
+                                   (__bridge_retained  void *)(contextInfo));
+}
+
+- (void)image:(UIImage *)image didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo
+{
+    id myInfo = (__bridge_transfer id)contextInfo;
+    // use error to check success or not
+    // contextInfo is watever you pass in
+}
+```
+
+but this way you can't get the path of the image you just saved
+
+
+__use `ALAssetsLibrary`__
+
+
+```
+- (void)saveImageToPhotoAlbum2:(UIImage *)image
+{
+    ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
+    
+    [library writeImageToSavedPhotosAlbum:image.CGImage
+                              orientation:(ALAssetOrientation)image.imageOrientation
+                          completionBlock:^(NSURL *assetURL, NSError *error) {
+        
+        // now you can use assetURL to find the save image's url
+        
+    }];
+    
+}
+```
+
+but `ALAssetsLibrary` is deprecated in iOS9
+
+
+__use `PHPhotoLibrary`__
+
+```
+// need @import Photos;
+
+- (void)saveImageToPhotoAlbum3:(UIImage *)image
+{
+    __block PHObjectPlaceholder *placeholder = nil;
+    
+    [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
+        
+        PHAssetChangeRequest *request = [PHAssetChangeRequest creationRequestForAssetFromImage:image];
+        placeholder = request.placeholderForCreatedAsset;
+        
+    } completionHandler:^(BOOL success, NSError * _Nullable error) {
+        
+        PHFetchResult<PHAsset *> *result = [PHAsset fetchAssetsWithLocalIdentifiers:@[placeholder.localIdentifier] options:nil];
+        
+        PHAsset *asset = result.firstObject;
+        
+        // do watver with PHAsset
+        
+        // note: this completionHandler runs on arbitrary queue
+        
+    }];
+}
+```
+
+## 5-23
+
+proper way do UITextField text change call back
+
+```
+textField addTarget:self 
+             action:@selector(textFieldDidChange:) 
+   forControlEvents:UIControlEventEditingChanged];
+```
+
+## 5-20
+
+Most reliable way to adjust UITableView cell separator insets
+
+```
+// where you can set it in cellForRowAtIndexPath
+// or in cell's awakeFromNib
+cell.separatorInset = UIEdgeInsetsMake(0, 50, 0, 0);
+
+```
+
+## 5-17
+
+Interesting links
+
+* [This is why most mobile development projects fail](http://clean-swift.com/mobile-development-projects-fail/)
+* [NSNumberFormatter](https://developer.apple.com/library/ios/documentation/Cocoa/Reference/Foundation/Classes/NSNumberFormatter_Class/) use this to show currency base on current locale
+
+```
+NSNumber *someNumber = [NSNumber numberWithDouble:total];
+
+NSNumberFormatter *nf = [[NSNumberFormatter alloc] init];
+[nf setNumberStyle:NSNumberFormatterCurrencyStyle];
+NSString *someString = [nf stringFromNumber:someNumber];
+```
+
+## 5-12
+
+Interesting links
+
+* [ELI5: Why do some organs come in pairs, like Kidneys and Lungs, but others are singular, such as the Liver or Heart?](https://www.reddit.com/r/explainlikeimfive/comments/4iu3xq/eli5_why_do_some_organs_come_in_pairs_like/)
+* [The easy & reliable way of handling UITableView insets when the keyboard is shown](https://gist.github.com/TimMedcalf/9505416)
+* [5:2 diet - 2 days of low calorie(like 600ish for men), 5 days of normal calorie](https://en.wikipedia.org/wiki/5:2_diet)
+* [Soylent or soylent alternatives for healthy meal replacement, gaining muscle, and saving money?](https://www.reddit.com/r/Fitness/comments/4haetk/soylent_or_soylent_alternatives_for_healthy_meal/)
+* 
+
+## 5-7
+
+Good stuff from surfing
+
+* [Software Engineering Podcasts Review](https://www.reddit.com/r/programming/comments/4hycnz/software_engineering_podcasts_review/)
+* [A Guide to Bayesian Statistics](https://news.ycombinator.com/item?id=11613877)
+
 ## 5-6
 
 High-intensity interval training (HIIT), is great!
