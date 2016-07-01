@@ -9,6 +9,19 @@ iOS stuff
 * [Is it possible to force Excel recognize UTF-8 CSV files automatically?](http://stackoverflow.com/questions/6002256/is-it-possible-to-force-excel-recognize-utf-8-csv-files-automatically)
 * [為何使用 Microsoft Excel 打開匯出的報名人 CSV 檔案是亂碼？](http://support.kktix.com/knowledgebase/articles/278363-%E7%82%BA%E4%BD%95%E4%BD%BF%E7%94%A8-microsoft-excel-%E6%89%93%E9%96%8B%E5%8C%AF%E5%87%BA%E7%9A%84%E5%A0%B1%E5%90%8D%E4%BA%BA-csv-%E6%AA%94%E6%A1%88%E6%98%AF%E4%BA%82%E7%A2%BC)
 
+__how to solve generated csv file will not display properly in microsoft excel__
+
+```
+// thanks to http://stackoverflow.com/a/26034145/1440081
+// manually add BOM character in the front of the file
+cvsStringFile = [[NSString alloc] initWithFormat:@"\357\273\277%@", cvsStringFile];
+
+NSData *myXLSData = [cvsStringFile dataUsingEncoding:NSUTF8StringEncoding];
+[picker addAttachmentData:myXLSData mimeType:@"text/csv;charset=utf-8" fileName:@"Report.csv"];
+
+```
+
+
 [Mousewheel horizontal scrolling](http://stackoverflow.com/questions/25228158/mousewheel-horizontal-scrolling)
 
 ```
